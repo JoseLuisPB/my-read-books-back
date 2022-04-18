@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { dbUsername, dbPassword, dbName } from './sensible.data';
+import { BookModule } from './modules/book/book.module';
+import { AuthorModule } from './modules/author/author.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -14,8 +16,8 @@ import { dbUsername, dbPassword, dbName } from './sensible.data';
     password: dbPassword,
     database: dbName,
     entities: [ "dist/**/*.entity{.ts,.js}"],
-    synchronize: true
-  })],
+    synchronize: false
+  }), BookModule, AuthorModule],
   controllers: [AppController],
   providers: [AppService],
 })
