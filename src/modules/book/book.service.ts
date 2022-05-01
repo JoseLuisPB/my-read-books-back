@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRepository, Repository } from 'typeorm';
-import { bookDto } from './book.dto';
+import { BookDto } from './book.dto';
 import { BookEntity } from './book.entity';
 import { Book } from './book.model';
 
@@ -12,8 +12,9 @@ export class BookService {
         @InjectRepository(BookEntity) private readonly bookRepo: Repository<BookEntity>
     ){}
 
-    async findAll() {
-        return await this.bookRepo.find({relations:['author']});
+    async findAll(): Promise<BookDto[]> {
+        const books = await this.bookRepo.find({relations:['author']});
+        return this.convertToDtoObject(books);
     }
 
     async findBook(id: number) {
@@ -32,25 +33,29 @@ export class BookService {
         await this.bookRepo.delete(id);
     }
 
-    async getLastNBooks(records: number): Promise<bookDto[]> {
+    async getLastNBooks(limit: number): Promise<BookDto[]> {
         const lastNBooks = await getRepository(BookEntity)
             .createQueryBuilder('book')
             .leftJoinAndSelect('book.author', 'author')
             .orderBy('book.id', 'DESC')
-            .limit(records)
-            .getMany();
-        const bookList: bookDto[] = [];
-        lastNBooks.forEach( item => {
+            .limit(limit)
+            .getMany();    
+        return this.convertToDtoObject(lastNBooks);
+    }
+
+    private convertToDtoObject(books: Book[]): BookDto[] {
+        const bookList: BookDto[] = [];
+        books.forEach( item => {
             bookList.push(
                 {
                     id: item.id,
                     author: item.author.fullName,
+                    country: item.author.country,
                     title: item.title,
                     year: item.year
                 }
             )
         })
-
         return bookList;
     }
 }
