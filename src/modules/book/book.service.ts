@@ -49,6 +49,7 @@ export class BookService {
             bookList.push(
                 {
                     id: item.id,
+                    idAuthor: item.author.id,
                     author: item.author.fullName,
                     country: item.author.country,
                     title: item.title,
